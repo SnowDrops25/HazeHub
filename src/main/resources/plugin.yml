@@ -1,0 +1,7 @@
+name: HazeHub
+version: 1.0.0
+main: nl.hazenetwork.hazehub.HazeHub
+api-version: '1.21'
+author: HazeNetwork
+description: HazeNetwork hub server selector compass in slot 5
+softdepend: [DeluxeMenus]
