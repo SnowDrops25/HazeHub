@@ -28,7 +28,7 @@ public final class HazeHub extends JavaPlugin implements Listener {
 
     private NamespacedKey key;
 
-    // Vijfde slot in de hotbar
+    // Vijfde slot van de hotbar
     private static final int SLOT = 4;
 
     @Override
@@ -44,9 +44,10 @@ public final class HazeHub extends JavaPlugin implements Listener {
 
         getLogger().info("HazeHub ingeschakeld!");
         getLogger().info("Serverselector actief in hotbar slot 5.");
+        getLogger().info("DEBUG-modus actief voor kompasinteractie.");
     }
 
-    // Controleert of een item het HazeHub-kompas is
+    // Herkent het speciale HazeNetwork-kompas
     private boolean isSelector(ItemStack item) {
 
         if (item == null ||
@@ -60,7 +61,7 @@ public final class HazeHub extends JavaPlugin implements Listener {
                 .has(key, PersistentDataType.BYTE);
     }
 
-    // Maakt het speciale serverselector-kompas
+    // Maakt het serverselector-kompas
     @SuppressWarnings("deprecation")
     private ItemStack makeSelector() {
 
@@ -87,10 +88,10 @@ public final class HazeHub extends JavaPlugin implements Listener {
         return item;
     }
 
-    // Geeft het kompas in slot 5
+    // Geeft het kompas in hotbar-slot 5
     private void give(Player player) {
 
-        // Verwijder oude HazeHub-kompassen
+        // Verwijder eerder uitgegeven kompassen
         for (int i = 0; i < player.getInventory().getSize(); i++) {
 
             ItemStack item = player.getInventory().getItem(i);
@@ -100,9 +101,9 @@ public final class HazeHub extends JavaPlugin implements Listener {
             }
         }
 
-        // Controleer of slot 5 bezet is
         ItemStack existing = player.getInventory().getItem(SLOT);
 
+        // Verplaats een eventueel bestaand item
         if (existing != null &&
             existing.getType() != Material.AIR) {
 
@@ -119,14 +120,13 @@ public final class HazeHub extends JavaPlugin implements Listener {
             }
         }
 
-        // Plaats kompas in slot 5
         player.getInventory().setItem(
             SLOT,
             makeSelector()
         );
     }
 
-    // Kompas geven bij joinen
+    // Geef kompas bij joinen
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
 
@@ -143,7 +143,7 @@ public final class HazeHub extends JavaPlugin implements Listener {
         );
     }
 
-    // Kompas teruggeven na respawn
+    // Geef kompas na respawn
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
 
@@ -160,17 +160,12 @@ public final class HazeHub extends JavaPlugin implements Listener {
         );
     }
 
-    // Rechtsklik op kompas opent /servers
+    // DEBUG: controleer rechtsklik en open /servers
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
 
         // Alleen hoofdhand
         if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
-
-        // Alleen het HazeHub-kompas
-        if (!isSelector(event.getItem())) {
             return;
         }
 
@@ -180,24 +175,53 @@ public final class HazeHub extends JavaPlugin implements Listener {
             return;
         }
 
-        event.setCancelled(true);
-
         Player player = event.getPlayer();
 
-        // Open DeluxeMenus op de volgende tick
+        player.sendMessage(
+            "§e[HazeHub TEST] Rechtsklik gedetecteerd!"
+        );
+
+        // Controleer of het kompas herkend wordt
+        if (!isSelector(event.getItem())) {
+
+            player.sendMessage(
+                "§c[HazeHub TEST] Kompas niet herkend!"
+            );
+
+            return;
+        }
+
+        player.sendMessage(
+            "§a[HazeHub TEST] Kompas herkend!"
+        );
+
+        event.setCancelled(true);
+
+        // Voer DeluxeMenus-commando uit
         Bukkit.getScheduler().runTask(
             this,
             () -> {
 
-                if (player.isOnline()) {
-                    player.performCommand("servers");
+                if (!player.isOnline()) {
+                    return;
                 }
 
+                player.sendMessage(
+                    "§e[HazeHub TEST] /servers uitvoeren..."
+                );
+
+                boolean success =
+                    player.performCommand("servers");
+
+                player.sendMessage(
+                    "§e[HazeHub TEST] Commando uitgevoerd: "
+                    + success
+                );
             }
         );
     }
 
-    // Voorkom weggooien van het kompas
+    // Voorkom weggooien
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
 
@@ -221,13 +245,13 @@ public final class HazeHub extends JavaPlugin implements Listener {
             return;
         }
 
-        // Voorkom hotbar-swaps met slot 5
+        // Voorkom verwisselen via hotbar
         if (event.getHotbarButton() == SLOT) {
             event.setCancelled(true);
             return;
         }
 
-        // Voorkom klikken op slot 5
+        // Bescherm slot 5
         if (event.getClickedInventory() ==
             event.getWhoClicked().getInventory() &&
             event.getSlot() == SLOT) {
@@ -236,7 +260,7 @@ public final class HazeHub extends JavaPlugin implements Listener {
         }
     }
 
-    // Voorkom verplaatsen via slepen
+    // Voorkom slepen
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
 
@@ -257,7 +281,7 @@ public final class HazeHub extends JavaPlugin implements Listener {
         }
     }
 
-    // Voorkom kompas naar offhand verplaatsen
+    // Voorkom verplaatsen naar offhand
     @EventHandler
     public void onSwap(PlayerSwapHandItemsEvent event) {
 
