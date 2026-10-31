@@ -1,7 +1,18 @@
+
 name: HazeHub
-version: 1.0.0
+version: 1.1.0
 main: nl.hazenetwork.hazehub.HazeHub
 api-version: '1.21'
-author: HazeNetwork
-description: HazeNetwork hub server selector compass in slot 5
-softdepend: [DeluxeMenus]
+author: SnowDrops
+description: HazeNetwork Hub serverselector en NPC verbindingen
+
+commands:
+  hazehub:
+    description: Verbind met een HazeNetwork server
+    usage: /hazehub connect <server>
+    permission: hazehub.connect
+
+permissions:
+  hazehub.connect:
+    description: Sta verbindingen via HazeHub toe
+    default: true
